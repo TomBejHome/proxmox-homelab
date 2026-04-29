@@ -5,9 +5,9 @@ metadata:
   namespace: argocd
 spec:
   entryPoints:
-    - websecure
+    - web
   routes:
-    - match: Host(`argo.gmkcz.duckdns.org`)
+    - match: Host(`argo.czgeeklab.com`)
       kind: Rule
       services:
         - name: argocd-server
