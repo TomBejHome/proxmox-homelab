@@ -1,13 +1,24 @@
 traefik:
   ports:
+    traefik:
+      port: 9000
+      exposedPort: 9000
+      protocol: TCP
     web:
-      expose:
-        default: true
-    websecure:
       expose:
         default: true
       redirectTo:
         port: websecure
+    websecure:
+      expose:
+        default: true
+  api:
+    dashboard: true
+    insecure: true
+
+  additionalArguments:
+    - "--api.insecure=true"
+    - "--api.dashboard=true"
 
   ingressDashBoard:
     enabled: true
