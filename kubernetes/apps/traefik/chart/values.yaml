@@ -1,0 +1,19 @@
+traefik:
+  ports:
+    web:
+      expose:
+        default: true
+    websecure:
+      expose:
+        default: true
+      redirectTo:
+        port: websecure
+
+  ingressDashBoard:
+    enabled: true
+  
+  persistence:
+    enabled: false
+
+  service:
+    type: LoadBalancer
