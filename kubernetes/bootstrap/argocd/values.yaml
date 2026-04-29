@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/TomBejHome/proxmox-homelab.git'
     targetRevision: HEAD
-    path: kubernetes/bootstrap
+    path: kubernetes/apps/argocd/chart
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: argocd
