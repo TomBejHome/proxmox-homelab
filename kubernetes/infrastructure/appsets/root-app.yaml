@@ -9,7 +9,7 @@ spec:
         repoURL: 'https://github.com/TomBejHome/proxmox-homelab.git'
         revision: HEAD
         files:
-          - path: "apps/*/config.json"
+          - path: "kubernetes/apps/*/config.json"
   template:
     metadata:
       name: '{{path.basename.parent}}'
@@ -23,7 +23,7 @@ spec:
         path: '{{path.path}}/chart'
         helm:
           valueFiles:
-            - ../values.yaml
+            - values.yaml
       destination:
         server: 'https://kubernetes.default.svc'
         namespace: '{{path.basename.parent}}'
