@@ -12,7 +12,7 @@ spec:
           - path: "kubernetes/apps/*/config.json"
   template:
     metadata:
-      name: '{{path.basename.parent}}'
+      name: '{{path[2]}}'
       annotations:
         argocd.argoproj.io/sync-wave: '{{wave}}'
     spec:
@@ -26,7 +26,7 @@ spec:
             - values.yaml
       destination:
         server: 'https://kubernetes.default.svc'
-        namespace: '{{path.basename.parent}}'
+        namespace: '{{name}}'
       syncPolicy:
         automated:
           prune: true
