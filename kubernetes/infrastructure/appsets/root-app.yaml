@@ -12,7 +12,7 @@ spec:
           - path: "kubernetes/apps/*/config.json"
   template:
     metadata:
-      name: '{{path[2]}}'
+      name: '{{path.basename}}'
       annotations:
         argocd.argoproj.io/sync-wave: '{{wave}}'
     spec:
@@ -20,13 +20,13 @@ spec:
       source:
         repoURL: 'https://github.com/TomBejHome/proxmox-homelab.git'
         targetRevision: HEAD
-        path: '{{path.path}}/chart'
+        path: '{{path}}/chart'
         helm:
           valueFiles:
             - values.yaml
       destination:
         server: 'https://kubernetes.default.svc'
-        namespace: '{{name}}'
+        namespace: '{{path.basename}}'
       syncPolicy:
         automated:
           prune: true
