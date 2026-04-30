@@ -1,0 +1,107 @@
+---
+# 0. Instalace závislostí pro Proxmox Ansible moduly
+- name: Install required Python libraries (proxmoxer, requests)
+  ansible.builtin.apt:
+    name:
+      - python3-proxmoxer
+      - python3-requests
+    state: present
+    update_cache: yes
+
+# 1. Vytvoření role/uživatele v Proxmoxu
+- name: Create Terraform user
+  community.proxmox.proxmox_user:
+    api_host: "{{ proxmox_api_host }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_password }}"
+    name: "terraform-prov@pve"
+    state: present
+    validate_certs: false
+  no_log: true
+
+# 2. Přiřazení oprávnění (aby mohl vytvářet VM a spravovat disky)
+- name: Assign PVEVMAdmin role to Terraform user
+  community.proxmox.proxmox_access_acl:
+    api_host: "{{ proxmox_api_host }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_password }}"
+    path: "/"
+    type: user
+    ugid: "terraform-prov@pve"
+    roleid: "PVEVMAdmin"
+    state: present
+    validate_certs: false
+  no_log: true
+
+# 3. Přidání práv na úložiště (storage), aby mohl Terraform vytvářet disky
+- name: Assign Datastore permissions to Terraform user
+  community.proxmox.proxmox_access_acl:
+    api_host: "{{ proxmox_api_host }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_password }}"
+    path: "/storage"
+    state: present
+    # Tady jsou ty tři "magické" parametry:
+    roleid: "PVEDatastoreAdmin"
+    type: "user"
+    ugid: "terraform-prov@pve"
+  no_log: true
+
+# 4. Přidání práv na sítě (SDN), aby mohl Terraform připojit síťovku
+- name: Assign Network permissions to Terraform user
+  community.proxmox.proxmox_access_acl:
+    api_host: "{{ proxmox_api_host }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_password }}"
+    # Cesta /sdn pokryje zóny i jednotlivé bridge (vmbr0)
+    path: "/sdn"
+    state: present
+    roleid: "PVEAdmin"
+    type: "user"
+    ugid: "terraform-prov@pve"
+    propagate: true
+  no_log: true
+
+# 5. Získání autentizačního ticketu pro Proxmox API
+- name: Get Proxmox authentication ticket
+  ansible.builtin.uri:
+    url: "https://{{ proxmox_api_host }}:8006/api2/json/access/ticket"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      username: "{{ proxmox_api_user }}"
+      password: "{{ proxmox_api_password }}"
+    validate_certs: false
+  register: pve_auth_response
+  no_log: true
+  when: not ansible_check_mode
+
+# 6. Vygenerování API Tokenu přes API (pomocí ticketu a CSRF tokenu)
+- name: Create API Token for Terraform
+  ansible.builtin.uri:
+    url: "https://{{ proxmox_api_host }}:8006/api2/json/access/users/terraform-prov@pve/token/tf-token"
+    method: POST
+    headers:
+      CSRFPreventionToken: "{{ pve_auth_response.json.data.CSRFPreventionToken }}"
+      Cookie: "PVEAuthCookie={{ pve_auth_response.json.data.ticket }}"
+    body_format: form-urlencoded
+    body:
+      privsep: 0
+    validate_certs: false
+    status_code: [200, 201, 400]
+  register: pve_token_result
+  changed_when: pve_token_result.status in [200, 201]
+  failed_when: pve_token_result.status not in [200, 201] and 'already exists' not in (pve_token_result.json.errors | default('') | string | lower) and 'already exists' not in (pve_token_result.json.message | default('') | string | lower)
+  no_log: true
+  when: not ansible_check_mode
+
+# 7. Výpis tokenu do terminálu pro Terraform
+- name: Display API Token
+  debug:
+    msg:
+      - "API Token created successfully!"
+      - "Token ID: terraform-prov@pve!tf-token"
+      - "Token value is hidden. Store it in terraform/01-infrastructure/terraform.tfvars as proxmox_api_token_secret."
+  when:
+    - not ansible_check_mode
+    - pve_token_result.status in [200, 201]
