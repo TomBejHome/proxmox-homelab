@@ -3,6 +3,8 @@ kind: L2Advertisement
 metadata:
   name: l2-adv
   namespace: metallb
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
 spec:
   ipAddressPools:
     - default-pool
