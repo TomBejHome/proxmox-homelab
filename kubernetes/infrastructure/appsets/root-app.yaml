@@ -5,11 +5,27 @@ metadata:
   namespace: argocd
 spec:
   generators:
-    - git:
-        repoURL: 'https://github.com/TomBejHome/proxmox-homelab.git'
-        revision: HEAD
-        files:
-          - path: "kubernetes/apps/*/config.json"
+    - merge:
+        mergeKeys:
+          - appName
+        generators:
+          - git:
+              repoURL: 'https://github.com/TomBejHome/proxmox-homelab.git'
+              revision: HEAD
+              files:
+                - path: "kubernetes/apps/*/config.json"
+          - list:
+              elements:
+                - appName: metallb
+                  ignoreDiff:
+                    - group: admissionregistration.k8s.io
+                      kind: ValidatingWebhookConfiguration
+                      name: metallb-webhook-configuration
+                      jsonPointers: ["/webhooks/0/clientConfig/caBundle"]
+                    - group: admissionregistration.k8s.io
+                      kind: MutatingWebhookConfiguration
+                      name: metallb-webhook-configuration
+                      jsonPointers: ["/webhooks/0/clientConfig/caBundle"]
   template:
     metadata:
       name: '{{path.basename}}'
@@ -27,6 +43,9 @@ spec:
       destination:
         server: 'https://kubernetes.default.svc'
         namespace: '{{path.basename}}'
+      
+      ignoreDifferences: '{{ignoreDiff}}'
+      
       syncPolicy:
         automated:
           prune: true
