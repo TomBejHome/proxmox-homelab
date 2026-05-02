@@ -1,4 +1,13 @@
 argo-cd:
+  global:
+    domain: argo.czgeeklab.com
+
+  configs:
+    cm:
+      url: https://argo.czgeeklab.com
+    params:
+      server.insecure: true
+
   repoServer:
     resources:
       requests:
@@ -25,8 +34,6 @@ argo-cd:
       limits:
         cpu: 500m
         memory: 256Mi
-    extraArgs:
-      - --insecure
 
   redis:
     resources:

@@ -4,6 +4,7 @@ resource "proxmox_virtual_environment_vm" "talos" {
   name      = each.value.name
   node_name = var.proxmox_node_name
   vm_id     = each.value.vm_id
+  boot_order = ["virtio0", "ide3", "net0"]
 
   cpu {
     cores = each.value.cpu_cores
