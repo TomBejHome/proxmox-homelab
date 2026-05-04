@@ -14,14 +14,14 @@ traefik:
         default: true
   api:
     dashboard: true
-    insecure: true
 
-  additionalArguments:
-    - "--api.insecure=true"
-    - "--api.dashboard=true"
-
-  ingressDashBoard:
-    enabled: true
+  ingressRoute:
+    dashboard:
+      enabled: true
+      matchRule: Host(`traefik.czgeeklab.com`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+      entryPoints:
+        - websecure
+      tls: {}
   
   persistence:
     enabled: false
