@@ -4,9 +4,13 @@ argo-cd:
 
   configs:
     cm:
+      accounts.demo-readonly: login
       url: https://argo.czgeeklab.com
     params:
       server.insecure: true
+    rbac:
+      policy.csv: |
+        g, demo-readonly, role:readonly
 
   repoServer:
     resources:
