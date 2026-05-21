@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infra-apps-waves
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: 'https://github.com/TomBejHome/proxmox-homelab.git'
+        revision: HEAD
+        files:
+          - path: "kubernetes/apps/platform/*/config.json"
+  template:
+    metadata:
+      name: '{{path.basename}}'
+      labels:
+        app.kubernetes.io/part-of: platform
+      annotations:
+        argocd.argoproj.io/sync-wave: '{{wave}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/TomBejHome/proxmox-homelab.git'
+        targetRevision: HEAD
+        path: '{{path}}/chart'
+        helm:
+          valueFiles:
+            - values.yaml
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{path.basename}}'
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - RespectIgnoreDifferences=true
+          - ServerSideApply=true

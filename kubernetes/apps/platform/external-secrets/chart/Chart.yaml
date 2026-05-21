@@ -1,0 +1,12 @@
+# https://external-secrets.io/v2.4.1
+# https://artifacthub.io/packages/helm/external-secrets-operator/external-secrets
+apiVersion: v2
+name: external-secrets
+description: External Secrets Operator wrapper chart
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: external-secrets
+    version: 2.4.1
+    repository: https://charts.external-secrets.io

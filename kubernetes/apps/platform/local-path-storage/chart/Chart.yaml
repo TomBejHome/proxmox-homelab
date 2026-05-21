@@ -1,0 +1,6 @@
+apiVersion: v2
+name: local-path-storage
+description: Local Path Provisioner for Talos (Vendor version)
+type: application
+version: 1.0.0
+appVersion: "0.0.30"

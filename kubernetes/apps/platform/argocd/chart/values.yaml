@@ -1,0 +1,62 @@
+argo-cd:
+  global:
+    domain: argo.czgeeklab.com
+
+  configs:
+    cm:
+      accounts.demo-readonly: login
+      url: https://argo.czgeeklab.com
+      resource.customizations: |
+        admissionregistration.k8s.io/MutatingWebhookConfiguration:
+          ignoreDifferences: |
+            jsonPointers:
+            - /webhooks/0/clientConfig/caBundle
+            - /webhooks/1/clientConfig/caBundle
+            - /webhooks/*/clientConfig/caBundle
+        
+        apiextensions.k8s.io/CustomResourceDefinition:
+          ignoreDifferences: |
+            jsonPointers:
+            - /spec/conversion/webhook/clientConfig/caBundle
+
+    params:
+      server.insecure: true
+    rbac:
+      policy.csv: |
+        g, demo-readonly, role:readonly
+
+  repoServer:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  controller:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+
+  server:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+
+  redis:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi

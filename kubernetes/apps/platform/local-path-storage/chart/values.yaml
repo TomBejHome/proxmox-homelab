@@ -1,0 +1,6 @@
+storage:
+  name: local-path
+  isDefault: "true"
+  reclaimPolicy: Delete
+security:
+  enforcePolicy: privileged

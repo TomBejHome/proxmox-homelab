@@ -1,0 +1,45 @@
+secrets:
+  - path: secret
+    type: kv
+    description: General KV v2 secrets.
+    options:
+      version: 2
+
+policies:
+  - name: eso-read
+    rules: |
+      path "secret/data/eso-test/config" {
+        capabilities = ["read"]
+      }
+
+      path "secret/data/cert-manager/cloudflare-api-token" {
+            capabilities = ["read"]
+          }
+
+    # https://openbao.org/api-docs/system/storage/raft/
+  - name: openbao-snapshot-read
+    rules: |
+      path "sys/storage/raft/snapshot" {
+        capabilities = ["read"]
+      }
+
+      path "secret/data/platform/openbao-backup/rclone" {
+        capabilities = ["read"]
+      }
+
+auth:
+  - type: kubernetes
+    config:
+      kubernetes_host: https://kubernetes.default.svc:443
+    roles:
+      - name: eso-read
+        bound_service_account_names: external-secrets
+        bound_service_account_namespaces: external-secrets
+        policies: eso-read
+        ttl: 30m
+      
+      - name: openbao-backup
+        bound_service_account_names: openbao-backup
+        bound_service_account_namespaces: openbao
+        policies: openbao-snapshot-read
+        ttl: 30m

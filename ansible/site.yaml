@@ -1,0 +1,20 @@
+---
+- name: Priprava Proxmoxu pro Terraform
+  hosts: proxmox_nodes
+  
+  vars_prompt:
+    - name: "root_password_input"
+      prompt: "Zadej heslo pro root@pam (Proxmox)"
+      private: yes
+
+  vars:
+    proxmox_api_host: "{{ ansible_host }}"
+    proxmox_api_user: "root@pam"
+    proxmox_api_password: "{{ root_password_input }}"
+
+  collections:
+    - community.general
+    - community.proxmox
+    
+  roles:
+    - proxmox_init

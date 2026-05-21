@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.configurer.name }}
+  namespace: {{ .Values.openbao.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.configurer.name }}
+    app.kubernetes.io/part-of: openbao-config
+spec:
+  replicas: {{ .Values.configurer.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.configurer.name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.configurer.name }}
+        app.kubernetes.io/part-of: openbao-config
+      annotations:
+        checksum/vault-config: {{ .Files.Get "files/vault-config.yml" | sha256sum }}
+    spec:
+      serviceAccountName: {{ .Values.configurer.name }}
+      containers:
+        - name: bank-vaults-configurer
+          image: {{ .Values.configurer.image }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - bank-vaults
+            - configure
+            - --mode
+            - file
+            - --file-path
+            - /vault/keys
+          env:
+            - name: VAULT_ADDR
+              value: {{ .Values.openbao.address | quote }}
+          ports:
+            - name: metrics
+              containerPort: 9091
+          resources:
+            {{- toYaml .Values.configurer.resources | nindent 12 }}
+          volumeMounts:
+            - name: vault-token
+              mountPath: /vault/keys
+              readOnly: true
+            - name: vault-config
+              mountPath: /vault-config.yml
+              subPath: vault-config.yml
+              readOnly: true
+      volumes:
+        - name: vault-token
+          secret:
+            secretName: {{ .Values.configurer.tokenSecretName }}
+            items:
+              - key: {{ .Values.configurer.tokenSecretKey }}
+                path: vault-root
+        - name: vault-config
+          configMap:
+            name: openbao-vault-config

@@ -1,0 +1,35 @@
+openbao:
+  server:
+    dev:
+      enabled: false
+    dataStorage:
+      enabled: true
+      size: 5Gi
+      storageClass: ""
+    standalone:
+      enabled: false
+    ha:
+      disruptionBudget:
+        enabled: false
+      enabled: true
+      replicas: 1
+      raft:
+        enabled: true
+        setNodeId: true
+        config: |
+          ui = true
+          listener "tcp" {
+            tls_disable = 1
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+          }
+          storage "raft" {
+            path = "/openbao/data"
+          }
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      hosts:
+        - host: bao.czgeeklab.com
+          paths: []

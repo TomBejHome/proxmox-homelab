@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openbao-vault-config
+  namespace: {{ .Values.openbao.namespace }}
+data:
+  vault-config.yml: |
+{{ .Files.Get "files/vault-config.yml" | indent 4 }}
