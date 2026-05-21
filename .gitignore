@@ -1,0 +1,24 @@
+# --- ANSIBLE ---
+inventory.ini
+inventory.yaml
+hosts.yaml
+.ansible_vault_pass
+*.retry
+
+# --- TALOS & KUBERNETES ---
+talosconfig.yaml
+kubeconfig.yaml
+real_config.yaml
+check_config.yaml
+
+# --- TERRAFORM ---
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# --- SYSTEM ---
+.DS_Store
+*.log
+crash.log
