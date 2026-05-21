@@ -1,0 +1,6 @@
+# Ignore files attributes
+ansible/collections/** linguist-vendored
+
+**/charts/** linguist-vendored
+
+*.md linguist-documentation
