@@ -12,7 +12,7 @@ policies:
         capabilities = ["read"]
       }
 
-      path "secret/data/platform/cert-manager/cloudflare-api-token" {
+      path "secret/data/platform/cert-manager/*" {
             capabilities = ["read"]
           }
 
