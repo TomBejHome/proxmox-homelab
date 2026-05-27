@@ -1,1 +1,3 @@
-# Will be added later, currently not needed
+image:
+  repository: cloudflare/cloudflared
+  tag: "2026.5.2"

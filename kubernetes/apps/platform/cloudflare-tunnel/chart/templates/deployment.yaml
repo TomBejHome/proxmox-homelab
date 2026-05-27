@@ -21,7 +21,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: cloudflared
-        image: cloudflare/cloudflared:latest
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         args:
         - tunnel
         - --no-autoupdate
