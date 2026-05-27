@@ -1,6 +1,0 @@
-apiVersion: v2
-name: cloudflare-tunnel
-description: Cloudflare Zero Trust Tunnel
-type: application
-version: 1.0.0
-appVersion: "latest"
