@@ -16,6 +16,10 @@ policies:
             capabilities = ["read"]
           }
 
+      path "secret/data/platform/cloudflare" {
+        capabilities = ["read"]
+      }
+
     # https://openbao.org/api-docs/system/storage/raft/
   - name: openbao-snapshot-read
     rules: |
